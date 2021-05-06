@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @*<title>@ViewBag.Title - 我的 ASP.NET 應用程式</title>*@
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <script src="/Scripts/vue.js"></script>
+
+    <link href="/Content/css/fontawesome.css" rel="stylesheet" />
+    @*<link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">*@
+    <link href="/Content/font-awesome.min.css" rel="stylesheet" />
+    <link href="/Content/perfect-scrollbar.min.css" rel="stylesheet" />
+
+    <link href="/Content/bootstrap-4.0.0/bootstrap.min.css" rel="stylesheet"> 
+    @*<link href="/Content/animate.css" rel="stylesheet" />*@
+    <link rel="stylesheet" href="/Content/mega/reset.css"> <!-- CSS reset -->
+    <link rel="stylesheet" href="/Content/mega/style.css"> <!-- Resource style -->
+    <link href="/Content/project/main.css" rel="stylesheet" />
+
+    <style>
+        .cd-main-header::after {
+            display: none;
+        }
+
+        .logo_link {
+            position: relative;
+            padding-left: 2rem;
+            line-height: initial;
+        }
+
+            .logo_link:hover {
+                text-decoration: none;
+            }
+
+        .brandName {
+            font-size: 1rem;
+        }
+
+        .station_subtitle {
+            font-size: 0.875rem;
+            color: #868e96;
+        }
+
+        @@media screen and (min-width:576px) {
+            .station_subtitle {
+                font-size: 1rem;
+                color: #343a40;
+            }
+        }
+
+        @@media screen and (min-width: 1200px) {
+            .logo_link {
+                padding-left: 100px;
+            }
+
+            .brandName, .station_subtitle {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+
+</head>
+<body>
+   
+   
+    @RenderBody()
+
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

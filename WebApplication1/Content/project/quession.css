@@ -1,0 +1,17 @@
+@media all and (max-width: 576px) {
+    .mainQuession {
+        padding-right: 1px;
+    }
+
+    .shadow {
+        -webkit-box-shadow: 0px 0px 0px 0px rgba(0,0,0,0.2);
+        -moz-box-shadow: 0px 0px 0px 0px rgba(0,0,0,0.2);
+        box-shadow: 0px 0px 0px 0px rgba(0,0,0,0.2);
+    }
+}
+
+.shadowQ {
+    -webkit-box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.2);
+    -moz-box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.2);
+    box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.2);
+}

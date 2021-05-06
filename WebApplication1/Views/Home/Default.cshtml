@@ -1,0 +1,1431 @@
+﻿
+
+<style>
+    .black_out {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: rgba(0,0,0,.3) !important;
+        z-index: 5;
+    }
+
+    a.dropdown-item.active {
+        color: #17A2B8;
+        background-color: #fff;
+    }
+
+    .teacher_avatar {
+        width: 40px;
+        height: 40px;
+        overflow: hidden;
+    }
+
+        .teacher_avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .maker_name {
+        font-size: 1.125rem;
+    }
+
+    @@media screen and (min-width: 768px) {
+        .teacher_avatar {
+            width: 60px;
+            height: 60px;
+        }
+
+        .maker_name {
+            font-size: 1.5rem;
+        }
+    }
+
+    .card_sm_title {
+        border-left: 3px solid #868E96;
+        padding-left: .5rem;
+        font-size: 0.875rem;
+    }
+
+    .badge_outline_secondary {
+        display: inline-block;
+        padding: .25rem;
+        color: #868e96;
+        border: 1px solid #868e96;
+        border-radius: 3px;
+        font-size: .875rem;
+    }
+
+    .weekpicker {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 80px repeat(7, minmax(50px, 1fr));
+        grid-template-rows: 50px;
+        grid-auto-rows: 50px;
+        overflow: auto;
+    }
+
+    @@media screen and (min-width: 768px) {
+        .d-md-grid {
+            display: grid !important;
+        }
+    }
+
+    .weekpicker.weekpicker_sm {
+        grid-template-columns: 60px repeat(7, minmax(30px, 1fr));
+        grid-template-rows: 30px;
+        grid-auto-rows: 30px;
+    }
+
+        .weekpicker.weekpicker_sm .weekpicker_header {
+            border-bottom: 1px solid #ddd;
+        }
+
+        .weekpicker.weekpicker_sm .weekpicker_timezone {
+            border: 1px solid #ddd;
+            background-color: transparent;
+            color: #555;
+        }
+
+    .weekpicker_header {
+        display: -webkit-box;
+        display: flex;
+        -webkit-box-pack: center;
+        justify-content: center;
+        -webkit-box-align: center;
+        align-items: center;
+        font-weight: bold;
+        border-radius: 0 !important;
+    }
+
+    .weekpicker_cell {
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+
+
+    .weekpicker_check > input[type="checkbox"]:checked + .weekpicker_check_style {
+        background-color: rgb(98 104 105 / 5%);
+    }
+
+        .weekpicker_check > input[type="checkbox"]:checked + .weekpicker_check_style::after {
+            content: '\f00c';
+            font-family: "Font Awesome 5 Free";
+            font-weight: bold;
+            color: #ceaa7f85;
+        }
+
+    .weekpicker_check > input[type="checkbox"]:disabled + .weekpicker_check_style {
+        cursor: default;
+    }
+
+    .weekpicker_check_style {
+        width: 100%;
+        height: 100%;
+        border-bottom: 1px solid #ddd;
+        border-right: 1px solid #ddd;
+        display: -webkit-box;
+        display: flex;
+        -webkit-box-pack: center;
+        justify-content: center;
+        -webkit-box-align: center;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .weekpicker_timezone {
+        border-right: 1px solid #ddd;
+        background-color: #444;
+        color: white;
+    }
+
+    /*修改bootstrap*/
+    .dropdown-toggle::after {
+        margin-left: 0;
+    }
+
+    @@media screen and (min-width: 576px) {
+        .dropdown-toggle::after {
+            margin-left: .25rem;
+        }
+    }
+
+    .spinner_style {
+        margin: 0 auto;
+        display: inherit;
+    }
+</style>
+<main id="vue-model" class="cd-main-content" style="background-color:#f5f5f5;">
+    <div id="activitie-info" class="course-planner-bg">
+        <div class="container">
+            <div class="text-white-title">
+                <h4>補教老師</h4>
+            </div>
+        </div>
+    </div>
+    <div class="pagemenu">
+        <div class="container">
+            <a role="button" href="javascript:void(0)" class="pagemenu-item pagemenu-item-dropdown" onclick="$('.pagemenu').addClass('in');"><i class="fa fa-angle-down" aria-hidden="true"></i></a>
+            <a role="button" href="javascript:void(0)" class="pagemenu-item pagemenu-item-close" onclick="$('.pagemenu').removeClass('in');"><i class="fa fa-angle-up" aria-hidden="true"></i></a>
+            <a role="button" href="javascript:void(0)" class="pagemenu-item active">找老師</a>
+        </div>
+    </div>
+
+    <div class="bg-white">
+        <div class="container p-3" style="position:relative;">
+            <div class="d-flex flex-column flex-md-row align-items-md-center">
+                <div class="flex-grow-1 mr-md-3 mb-2 mb-md-0" style="position:relative;">
+                    <input type="text" class="form-control mb-md-3 mb-2" placeholder="輸入關鍵字，如老師姓名" />                    
+                    <div class="btn-group w-100 bg-white rounded" style="z-index:20;position:relative;">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex flex-column flex-sm-row justify-content-sm-between justify-content-center align-items-center w-100" onclick="searchFilter.toggleFilter('makerItem')">
+                            <span class="d-flex flex-column flex-sm-row align-items-center">
+                                <span>授課項目</span>
+                                <span class="mx-1" v-show="filterMakerItem.length>0">({{filterMakerItem.length}})</span>
+                            </span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex flex-column flex-sm-row justify-content-sm-between justify-content-center align-items-center w-100" onclick="searchFilter.toggleFilter('location')">
+                            <span class="d-flex flex-column flex-sm-row align-items-center">
+                                <span>授課地點</span>
+                                <span class="mx-1" v-show="filterLocation.length>0">({{filterLocation.length}})</span>
+                            </span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex flex-column flex-sm-row justify-content-sm-between justify-content-center align-items-center w-100" onclick="searchFilter.toggleFilter('timeSection')">
+                            <span class="d-flex flex-column flex-sm-row align-items-center">
+                                <span>授課時間</span>
+                                <span class="mx-1" v-show="filterWeekday.length>0">({{filterWeekday.length}})</span>
+                            </span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex flex-column flex-sm-row justify-content-sm-between justify-content-center align-items-center w-100" onclick="searchFilter.toggleFilter('hourFee')">
+                            <span>{{filterHourFee === '' ? '鐘點費' : filterHourFee}}</span>
+                        </button>
+                    </div>
+                    <div class="bg-white w-100 rounded-bottom" style="position:absolute;top:100%;left:0;overflow-x:hidden;overflow-y:auto;max-height: 40vh;z-index:20">
+                        <!--選取授課項目-->
+                        <ul class="list-group d-none" id="makerItem">
+                            <li class="list-group-item-action">
+                                <label class="d-flex align-items-center" v-for="m in makeItem">
+                                    <input type="checkbox" class="mr-1" v-model="filterMakerItem" v-bind:value="m.itemId" />
+                                    <span class="line-clamp-1" v-bind:id="m.itemId" v-bind:value="m.itemId">{{m.code + ' - ' + m.name}}</span>
+                                </label>
+                            </li>
+                        </ul>
+                        <!--END: 選取授課項目-->
+                        <!--選取授課地點-->
+                        <div class="p-2 d-none" id="location">
+                            <label class="mr-2" v-for="a in area">
+                                <input type="checkbox" v-bind:value="a.cityid" v-model="filterLocation" />
+                                <span v-bind:id="a.cityid">{{a.cityname}}</span>
+                            </label>
+                        </div>
+                        <!--END: 選取授課地點-->
+                        <!--選取授課時間-->
+                        <ul class="list-group d-none" id="timeSection">
+                            <li class="list-group-item-action">
+                                <label>
+                                    <input type="checkbox" v-model="filterWeekday" value="Monday" />
+                                    <span id="Monday">星期一</span>
+                                </label>
+                            </li>
+                            <li class="list-group-item-action">
+                                <label>
+                                    <input type="checkbox" v-model="filterWeekday" value="Tuesday" />
+                                    <span id="Tuesday">星期二</span>
+                                </label>
+                            </li>
+                            <li class="list-group-item-action">
+                                <label>
+                                    <input type="checkbox" v-model="filterWeekday" value="Wednesday" />
+                                    <span id="Wednesday">星期三</span>
+                                </label>
+                            </li>
+                            <li class="list-group-item-action">
+                                <label>
+                                    <input type="checkbox" v-model="filterWeekday" value="Thursday" />
+                                    <span id="Thursday">星期四</span>
+                                </label>
+                            </li>
+                            <li class="list-group-item-action">
+                                <label>
+                                    <input type="checkbox" v-model="filterWeekday" value="Friday" />
+                                    <span id="Friday">星期五</span>
+                                </label>
+                            </li>
+                            <li class="list-group-item-action">
+                                <label>
+                                    <input type="checkbox" v-model="filterWeekday" value="Saturday" />
+                                    <span id="Saturday">星期六</span>
+                                </label>
+                            </li>
+                            <li class="list-group-item-action">
+                                <label>
+                                    <input type="checkbox" v-model="filterWeekday" value="Sunday" />
+                                    <span id="Sunday">星期日</span>
+                                </label>
+                            </li>
+                        </ul>
+                        <!--END: 選取授課時間-->
+                        <!--指定鐘點費-->
+                        <div class="p-2 d-none" id="hourFee">
+                            <input type="number" inputmode="numeric" class="form-control mb-2" v-model="filterHourFeeUser" max="20000" min="0" placeholder="請輸入鐘點費金額" />
+                            <div class="text-center">
+                                <button class="btn btn-secondary mx-1" v-on:click="resetFilterHourFee()">重置</button>
+                                <button class="btn btn-primary mx-1" v-on:click="setFilterHourFee()">確定</button>
+                            </div>
+                        </div>
+                        <!--END: 指定鐘點費-->
+                    </div>
+                </div>
+                <button class="btn btn-primary" v-on:click="query('query')"><i class="fas fa-search mr-1"></i>查詢</button>
+            </div>
+        </div>
+
+
+    </div>
+    <div class="container py-3">
+
+        <div class="d-flex flex-wrap" v-if="pickMakerItem.length > 0 || pickLocaltion.length > 0 || pickWeekday.length > 0 || pickHourfee.length > 0 &&  pickHourfee != ''">
+            <button class="btn btn-sm btn-warning mr-2 mb-1" v-on:click="reSet()">重置</button>
+            <button class="btn btn-sm btn-secondary mr-2 mb-1" v-for="pick in pickMakerItem"># {{pick}}</button>
+            <button class="btn btn-sm btn-secondary mr-2 mb-1" v-for="pick in pickLocaltion"># {{pick}}</button>
+            <button class="btn btn-sm btn-secondary mr-2 mb-1" v-for="pick in pickWeekday">  # {{pick}}</button>
+            <button class="btn btn-sm btn-secondary mr-2 mb-1" v-if="pickHourfee != ''" v-text="pickHourfee"></button>
+
+        </div>
+        <div class="d-flex justify-content-between">
+            <span>共 <span>{{totalCount}}</span>筆</span>
+            <div class="dropdown">
+                <p class="dropdown-toggle mb-0" style="cursor:pointer;" type="button" data-toggle="dropdown">
+                    排序
+                </p>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <!--sortColumns : 老師姓名 預設 ||  教學時數 最長 || 鐘點費 最低 || 學生人數 最多 -->
+                    <a class="dropdown-item " v-for="(sort,keyname) in sortColumns" :class="{active:sort.isActive}" v-on:click="sortSelect(keyname);  query()" :data-value="sort.sortKey">{{sort.sortname}}</a>
+
+                </div>
+            </div>
+        </div>
+        <!--搜尋結果 老師列表-->
+        <div v-if="coursePlannerDataList.length > 0">
+            <maker v-if="coursePlannerDataList.length > 0" v-for="coursePlanner in coursePlannerDataList" :name="coursePlanner.Name" :school="coursePlanner.SchoolName" :department="coursePlanner.Department"
+                   :hour-fee-min="coursePlanner.HourlyFeeMin" :hour-fee-max="coursePlanner.HourlyFeeMax"
+                   :students="coursePlanner.StudentNum" :teaching-hours="coursePlanner.TotalHour"
+                   :phone="coursePlanner.Mobile" :email="coursePlanner.Email"
+                   :location="coursePlanner.locations"
+                   :maker-indexes="coursePlanner.itemscore"
+                   :morning="coursePlanner.mornings.data" :afternoon="coursePlanner.afternoons.data" :night="coursePlanner.nights.data"
+                   :maker-items="coursePlanner.proctorItem.ItemName"
+                   :img="coursePlanner.profileimage"
+                   :self-introduction="coursePlanner.SelfIntroduction">
+
+            </maker>
+
+        </div>
+
+
+        <!--END: 搜尋結果 老師列表-->
+        <!--查無資料才顯示-->
+        <div v-else class="separate-item border-0">
+            <p class="text-gray text-center"><i aria-hidden="true" class="fa fa-search"></i> 查無資料</p>
+        </div>
+        <!--END: 查無資料才顯示-->
+
+        <div v-show="isSpinnerShow" class="spinner-border spinner_style" role="status" ref="spinner">
+            <span class="sr-only">加载中Loading...</span>
+        </div>
+    </div>
+    <div id="blackOut" class="black_out d-none" onclick="searchFilter.clickBlackOut()"></div>
+</main>
+<!--老師component HTML-->
+<script type="text/x-template" id="makerTemplate">
+    <div class="p-3 bg-white shadow mb-2">
+        <div class="row no-gutters align-items-center mb-2 mb-md-3">
+            <div class="col-lg-1 col-md-2 d-flex d-md-block justify-content-center">
+                <div class="teacher_avatar flex-shrink-0 border rounded">
+                    <img src="/images/project/dog.jpg" alt="avatar" />
+                </div>
+            </div>
+            <div class="col-lg-11 col-md-10 text-center text-md-left">
+                <h3 class="maker_name font-weight-bold text-info">{{name}}</h3>
+                <h5 class="mb-0 text-muted fz14">{{school + ' / ' + department}} </h5>
+            </div>
+        </div>
+        <div class="row no-gutters mb-3">
+            <div class="col-lg-1 col-md-2">
+                <h5 class="card_sm_title">授課條件</h5>
+            </div>
+            <div class="col-lg-3 col-md-4">
+                <div class="d-flex align-items-center mb-1">
+                    <i class="fas fa-dollar-sign text-muted mr-2"></i>
+                    <span class="pl-1">{{hourFeeMin}} ~ {{hourFeeMax}} 元/小時</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-map-marker-alt text-muted mr-2"></i>
+                    <div>
+                        <span class="badge_outline_secondary mr-2" v-for="city in location">{{city.cityname}}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8 col-md-6">
+                <a href="javascript:void(0)" onclick="showDatesMobile()" class="fz14 d-md-none">查看可授課時段</a>
+                <div class="weekpicker weekpicker_sm d-md-grid d-none">
+                    <div class="bg-secondary" style="border-bottom: 1px solid #ddd"></div>
+
+                    <div class="weekpicker_header bg-secondary text-white">一</div>
+                    <div class="weekpicker_header bg-secondary text-white">二</div>
+                    <div class="weekpicker_header bg-secondary text-white">三</div>
+                    <div class="weekpicker_header bg-secondary text-white">四</div>
+                    <div class="weekpicker_header bg-secondary text-white">五</div>
+                    <div class="weekpicker_header bg-secondary text-white">六</div>
+                    <div class="weekpicker_header bg-secondary text-white">日</div>
+
+                    <div class="weekpicker_header weekpicker_timezone">上午</div>
+                    <div class="weekpicker_cell" v-for="isChecked in morning.split(',')">
+                        <label class="weekpicker_check w-100 h-100">
+                            <input type="checkbox" class="d-none" disabled :checked="isChecked==0? false: true">
+                            <div class="weekpicker_check_style"></div>
+                        </label>
+                    </div>
+
+                    <div class="weekpicker_header weekpicker_timezone">下午</div>
+                    <div class="weekpicker_cell" v-for="isChecked in afternoon.split(',')">
+                        <label class="weekpicker_check w-100 h-100">
+                            <input type="checkbox" class="d-none" disabled :checked="isChecked==0? false: true">
+                            <div class="weekpicker_check_style"></div>
+                        </label>
+                    </div>
+
+                    <div class="weekpicker_header weekpicker_timezone">晚上</div>
+                    <div class="weekpicker_cell" v-for="isChecked in night.split(',')">
+                        <label class="weekpicker_check w-100 h-100">
+                            <input type="checkbox" class="d-none" disabled :checked="isChecked==0? false: true">
+                            <div class="weekpicker_check_style"></div>
+                        </label>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+        <div class="row no-gutters mb-2">
+            <div class="col-lg-1 col-md-2">
+                <h5 class="card_sm_title">經驗</h5>
+            </div>
+            <div class="col-lg-3 col-md-4">
+                <div class="d-flex align-items-center mb-1">
+                    <span class="mr-3"><i class="fas fa-users text-muted mr-1"></i> {{students}} 位</span>
+                    <span><i class="fas fa-clock text-muted mr-1"></i> {{teachingHours}} 小時</span>
+                </div>
+            </div>
+            <div class="col-lg-8 col-md-6">
+                <div class="d-flex flex-wrap">
+                    <span class="badge badge-secondary mr-2 mb-1">外形{{makerIndexes.adjustmentScore}}</span>
+                    <span class="badge badge-secondary mr-2 mb-1">機構{{makerIndexes.mechanismScore}}</span>
+                    <span class="badge badge-secondary mr-2 mb-1">電控{{ makerIndexes.electronicScore}}</span>
+                    <span class="badge badge-secondary mr-2 mb-1">程式{{makerIndexes.programScore}}</span>
+                    <span class="badge badge-secondary mr-2 mb-1">通訊{{makerIndexes.communicationScore}}</span>
+                    <span class="badge badge-secondary mr-2 mb-1">AI {{makerIndexes.aiScore}}</span>
+                </div>
+            </div>
+        </div>
+        <div class="row no-gutters mb-2">
+            <div class="col-lg-1 col-md-2">
+                <h5 class="card_sm_title">授課項目</h5>
+            </div>
+            <div class="col-lg-11 col-md-10">
+                <div class="d-flex flex-wrap js-makerItems" ref="maker_items">
+                    <div class="pb-1" v-for="item in makerItems">
+                        <span class="badge_outline_secondary mr-2">{{item}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row no-gutters mb-2">
+            <div class="col-lg-1 col-md-2">
+                <h5 class="card_sm_title">自我介紹</h5>
+            </div>
+            <div class="col-lg-11 col-md-10">
+                <div class="d-flex flex-wrap" ref="selfIntroduction">
+                    <p class="mb-0">{{selfIntroduction}}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center justify-content-md-end">
+            <a :href="'tel:'+phone" type="button" class="btn btn-sm btn-info mr-2">
+                <i class="fas fa-phone-alt"></i>
+                <span>|</span>
+                <span>{{phone}}</span>
+            </a>
+            <a href="mailto:abdc@gmail.com" type="button" class="btn btn-sm btn-info line-clamp-1" style="white-space: pre-wrap">
+                <i class="fas fa-envelope"></i>
+                <span>|</span>
+                <span>{{email}}</span>
+            </a>
+        </div>
+    </div>
+</script>
+<!--END: 老師component HTML-->
+
+
+
+<script>
+
+    // 下拉式選單
+    var sortColumns = [
+        { sortname: '老師姓名預設', isActive: true, sortKey: 'sort_teacherName' },
+        { sortname: '教學時數最長', isActive: false, sortKey: 'sort_teacherHour' },
+        { sortname: '學生人數 最多', isActive: false, sortKey: 'sort_studentNum' },
+        { sortname: '鐘點費   最低', isActive: false, sortKey: 'sort_hourFee' },
+    ]
+
+
+    Vue.component('maker', {
+        template: '#makerTemplate',
+        props: {
+            img: {
+                type: String,
+            },
+            name: {
+                type: String,
+                required: true,
+            },
+            school: {
+                type: String
+            },
+            department: {
+                type: String
+            },
+            hourFeeMin: {
+                type: String,
+                requried: true
+            },
+            hourFeeMax: {
+                type: String,
+                required: true
+            },
+            students: {
+                type: Number,
+                required: true
+            },
+            teachingHours: {
+                type: String,
+                required: true
+            },
+            phone: {
+                type: String
+            },
+            email: {
+                type: String
+            },
+            location: {
+                type: String
+            },
+            makerIndexes: {
+                type: Object
+            },
+            morning: {
+                type: String
+            },
+            afternoon: {
+                type: String
+            },
+            night: {
+                type: String
+            },
+            makerItems: {
+                type: Array
+            },
+            selfIntroduction: {
+                type: String
+            }
+        },
+        mounted: function () {
+            this.hideMakerItemsInOneline();
+            this.hideSelfIntroduction();
+        },
+        updated: function () {
+            this.hideMakerItemsInOneline();
+            this.hideSelfIntroduction();
+        },
+        methods: {
+            hideMakerItemsInOneline: function () {
+                var maker_items = this.$refs.maker_items;
+                maker_items.style.overflow = 'hidden';
+                maker_items.style.height = maker_items.firstElementChild.offsetHeight + 'px';
+                if (maker_items.scrollHeight > maker_items.clientHeight) {
+                    var showMore = document.createElement('a');
+                    showMore.href = "javascript:void(0)";
+                    showMore.classList.add('fz13');
+                    showMore.innerHTML = '顯示更多';
+                    showMore.addEventListener('click', () => {
+                        event.target.classList.add('d-none');
+                        maker_items.style.overflow = 'visible';
+                        maker_items.style.height = 'initial';
+                    })
+                    maker_items.parentElement.appendChild(showMore);
+                }
+            },
+            hideSelfIntroduction: function () {
+                var self_Introduction = this.$refs.selfIntroduction;
+
+                    self_Introduction.style.overflow = 'hidden';
+                     var style = window.getComputedStyle(self_Introduction, null);
+                    self_Introduction.style.height = style.lineHeight;
+                    if (self_Introduction.scrollHeight > self_Introduction.clientHeight) {
+                        var showMore = document.createElement('a');
+                        showMore.href = "javascript:void(0)";
+                        showMore.classList.add('fz13');
+                        showMore.innerHTML = '...顯示更多';
+                        showMore.addEventListener('click', () => {
+                            event.target.classList.add('d-none');
+                            self_Introduction.style.overflow = 'visible';
+                            self_Introduction.style.height = 'initial';
+                        })
+                        self_Introduction.parentElement.appendChild(showMore);
+                    }
+
+
+
+            }
+        }
+    })
+
+    var vueMain = new Vue({
+        el: "#vue-model",
+        data: {
+            filterMakerItem: [],
+            filterLocation: [],
+            filterWeekday: [],
+            filterHourFee: '', //回傳篩選資料用這個
+            filterHourFeeUser: 0,
+            isChecked: false,
+
+
+            pickMakerItem: [],//使用者選了甚麼授課項目的篩選條件
+            pickLocaltion: [],//使用者選了甚麼地點的篩選條件
+            pickWeekday: [],//使用者選了甚麼授課時間的篩選條件
+            pickHourfee: [],//使用者選了甚麼的篩選條件
+
+
+            //假裝從後端撈資料
+            area: [
+                {
+                    "cityid": 1,
+                    "cityname": "台北市"
+                },
+                {
+                    "cityid": 2,
+                    "cityname": "新北市"
+                },
+                {
+                    "cityid": 3,
+                    "cityname": "基隆市"
+                },
+                {
+                    "cityid": 4,
+                    "cityname": "桃園縣"
+                },
+                {
+                    "cityid": 5,
+                    "cityname": "新竹市"
+                },
+                {
+                    "cityid": 6,
+                    "cityname": "新竹縣"
+                },
+                {
+                    "cityid": 7,
+                    "cityname": "苗栗縣"
+                },
+                {
+                    "cityid": 8,
+                    "cityname": "台中市"
+                },
+                {
+                    "cityid": 9,
+                    "cityname": "彰化縣"
+                },
+                {
+                    "cityid": 10,
+                    "cityname": "南投縣"
+                },
+                {
+                    "cityid": 11,
+                    "cityname": "雲林縣"
+                },
+                {
+                    "cityid": 12,
+                    "cityname": "嘉義市"
+                },
+                {
+                    "cityid": 13,
+                    "cityname": "嘉義縣"
+                },
+                {
+                    "cityid": 14,
+                    "cityname": "台南市"
+                },
+                {
+                    "cityid": 15,
+                    "cityname": "高雄市"
+                },
+                {
+                    "cityid": 16,
+                    "cityname": "屏東縣"
+                },
+                {
+                    "cityid": 17,
+                    "cityname": "台東縣"
+                },
+                {
+                    "cityid": 18,
+                    "cityname": "花蓮縣"
+                },
+                {
+                    "cityid": 19,
+                    "cityname": "宜蘭縣"
+                },
+                {
+                    "cityid": 20,
+                    "cityname": "澎湖縣"
+                },
+                {
+                    "cityid": 21,
+                    "cityname": "金門縣"
+                },
+                {
+                    "cityid": 22,
+                    "cityname": "連江縣"
+                },
+            ],
+            makeItem: [
+                {
+                    "itemId": "8505C761-C93B-4AF9-984C-B78C2C5DFC94",
+                    "code": "A001",
+                    "name": "國文"
+                },
+                {
+                    "itemId": "589184D3-F04B-4C57-8F3E-370060800AA3",
+                    "code": "A002",
+                    "name": "英文"
+                },
+                {
+                    "itemId": "D743E154-A5BB-434A-938B-25D456D0F3F3",
+                    "code": "A003",
+                    "name": "歷史"
+                },
+                {
+                    "itemId": "466B0E61-C0C4-4034-B65C-3F5D42484462",
+                    "code": "A004",
+                    "name": "地理"
+                },
+                {
+                    "itemId": "0A0BE587-E19D-468F-87DE-4587FAD7EE55",
+                    "code": "A005",
+                    "name": "公民與社會"
+                },
+                {
+                    "itemId": "66B20F55-0E5E-4708-B22B-21974E94191E",
+                    "code": "A006",
+                    "name": "基礎物理"
+                },
+                {
+                    "itemId": "416A690E-C12A-41EF-95B3-1769A95D952C",
+                    "code": "A007",
+                    "name": "基礎化學"
+                },
+                {
+                    "itemId": "FA880E45-1FF7-4F76-AEED-DFE7D80C47DA",
+                    "code": "A008",
+                    "name": "基礎生物"
+                },
+                {
+                    "itemId": "4E5898C5-718C-4656-983F-003990DCB4E0",
+                    "code": "A009",
+                    "name": "基礎地球科學"
+                },
+                {
+                    "itemId": "4E47B9BD-BE37-4FEA-BD40-9CB6E6F30A9C",
+                    "code": "A010",
+                    "name": "音樂"
+                },
+                {
+                    "itemId": "6AB7AF53-AC53-42B8-9A91-EC04B6DF21D8",
+                    "code": "A011",
+                    "name": "美術"
+                },
+                {
+                    "itemId": "0BDE5BD3-2D6E-4C39-9E49-B5359BB612B5",
+                    "code": "A012",
+                    "name": "藝術生活"
+                },
+                {
+                    "itemId": "1CB1F0D5-C8D7-4DF5-8F30-F8D24D6D9480",
+                    "code": "A013",
+                    "name": "家政"
+                }
+            ],
+            makerTeacherData: {
+                "coursePlanner":
+                    [
+                        {
+                            "Name": "王大明",
+                            "SchoolName": "建國中學",
+                            "Department": "人事處",
+                            "HourlyFeeMin": "1500",
+                            "HourlyFeeMax": "5000",
+                            "StudentNum": 20,
+                            "TotalHour": "50",
+                            "Mobile": "0912345678",
+                            "Email": "test@gamil.com",
+                            "locations": "1,2",
+                            "mornings": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "afternoons": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "nights": {
+                                "data": "1, 0, 0, 0, 0, 0,0"
+                            },
+                            "profileimage": "",
+                            "SelfIntroduction": "我是XXX",
+                            "itemscore": {
+                                "shape": 1000, "mechanism": 2000, "electronic": 500, "program": 3333, "communicate": 300, "ai": 50
+                            },
+                            "proctorItem": {
+                                "ItemName": ["A004 - MEB多功能實驗板", "A004 - MEB多功能實驗板"]
+                            }
+                        },
+                        {
+                            "Name": "黑崎一護",
+                            "SchoolName": "中山附中",
+                            "Department": "校長室",
+                            "HourlyFeeMin": "2000",
+                            "HourlyFeeMax": "6000",
+                            "StudentNum": 30,
+                            "TotalHour": "30",
+                            "Mobile": "0922222222",
+                            "Email": "test2@gamil.com",
+                            "locations": "1,2",
+                            "mornings": {
+                                "data": "1, 0, 0, 0, 0, 0,0"
+                            },
+                            "afternoons": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "nights": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "profileimage": "",
+                            "SelfIntroduction": "12345555555",
+                            "itemscore": {
+                                "shape": 1000, "mechanism": 2000, "electronic": 500, "program": 3333, "communicate": 300, "ai": 50
+                            },
+                            "proctorItem": {
+                                "ItemName": ["A004 - MEB多功能實驗板", "A004 - MEB多功能實驗板"]
+                            }
+                        },
+                         {
+                            "Name": "炫窩鳴人",
+                            "SchoolName": "木葉",
+                            "Department": "輔導室",
+                            "HourlyFeeMin": "2000",
+                            "HourlyFeeMax": "8000",
+                            "StudentNum": 80,
+                            "TotalHour": "100",
+                            "Mobile": "0922222222",
+                            "Email": "test2@gamil.com",
+                            "locations": "1,2",
+                            "mornings": {
+                                "data": "1, 0, 0, 0, 0, 1,0"
+                            },
+                            "afternoons": {
+                                "data": "1, 1, 1, 1, 1, 1,0"
+                            },
+                            "nights": {
+                                "data": "1, 1, 1, 1, 1, 1,0"
+                            },
+                            "profileimage": "",
+                            "SelfIntroduction": "12345555555",
+                            "itemscore": {
+                                "shape": 1000, "mechanism": 2000, "electronic": 500, "program": 3333, "communicate": 300, "ai": 50
+                            },
+                            "proctorItem": {
+                                "ItemName": ["A004 - MEB多功能實驗板", "A004 - MEB多功能實驗板"]
+                            }
+                        },
+                        {
+                            "Name": "忍者哈特力",
+                            "SchoolName": "輔仁大學",
+                            "Department": "學生會辦公室",
+                            "HourlyFeeMin": "2000",
+                            "HourlyFeeMax": "4000",
+                            "StudentNum": 20,
+                            "TotalHour": "20",
+                            "Mobile": "0922222222",
+                            "Email": "test2@gamil.com",
+                            "locations": "1,2",
+                            "mornings": {
+                                "data": "1, 0, 0, 0, 0, 1,0"
+                            },
+                            "afternoons": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "nights": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "profileimage": "",
+                            "SelfIntroduction": "12345555555",
+                            "itemscore": {
+                                "shape": 1000, "mechanism": 2000, "electronic": 500, "program": 3333, "communicate": 300, "ai": 50
+                            },
+                            "proctorItem": {
+                                "ItemName": ["A004 - MEB多功能實驗板", "A004 - MEB多功能實驗板"]
+                            }
+                        },
+                        {
+                            "Name": "忍者哈特力",
+                            "SchoolName": "輔仁大學",
+                            "Department": "學生會辦公室",
+                            "HourlyFeeMin": "2000",
+                            "HourlyFeeMax": "4000",
+                            "StudentNum": 20,
+                            "TotalHour": "20",
+                            "Mobile": "0922222222",
+                            "Email": "test2@gamil.com",
+                            "locations": "1,2",
+                            "mornings": {
+                                "data": "1, 0, 0, 0, 0, 1,0"
+                            },
+                            "afternoons": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "nights": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "profileimage": "",
+                            "SelfIntroduction": "12345555555",
+                            "itemscore": {
+                                "shape": 1000, "mechanism": 2000, "electronic": 500, "program": 3333, "communicate": 300, "ai": 50
+                            },
+                            "proctorItem": {
+                                "ItemName": ["A004 - MEB多功能實驗板", "A004 - MEB多功能實驗板"]
+                            }
+                        },
+                        {
+                            "Name": "忍者哈特力",
+                            "SchoolName": "輔仁大學",
+                            "Department": "學生會辦公室",
+                            "HourlyFeeMin": "2000",
+                            "HourlyFeeMax": "4000",
+                            "StudentNum": 20,
+                            "TotalHour": "20",
+                            "Mobile": "0922222222",
+                            "Email": "test2@gamil.com",
+                            "locations": "1,2",
+                            "mornings": {
+                                "data": "1, 0, 0, 0, 0, 1,0"
+                            },
+                            "afternoons": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "nights": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "profileimage": "",
+                            "SelfIntroduction": "12345555555",
+                            "itemscore": {
+                                "shape": 1000, "mechanism": 2000, "electronic": 500, "program": 3333, "communicate": 300, "ai": 50
+                            },
+                            "proctorItem": {
+                                "ItemName": ["A004 - MEB多功能實驗板", "A004 - MEB多功能實驗板"]
+                            }
+                        },
+                        {
+                            "Name": "忍者哈特力",
+                            "SchoolName": "輔仁大學",
+                            "Department": "學生會辦公室",
+                            "HourlyFeeMin": "2000",
+                            "HourlyFeeMax": "4000",
+                            "StudentNum": 20,
+                            "TotalHour": "20",
+                            "Mobile": "0922222222",
+                            "Email": "test2@gamil.com",
+                            "locations": "1,2",
+                            "mornings": {
+                                "data": "1, 0, 0, 0, 0, 1,0"
+                            },
+                            "afternoons": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "nights": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "profileimage": "",
+                            "SelfIntroduction": "12345555555",
+                            "itemscore": {
+                                "shape": 1000, "mechanism": 2000, "electronic": 500, "program": 3333, "communicate": 300, "ai": 50
+                            },
+                            "proctorItem": {
+                                "ItemName": ["A004 - MEB多功能實驗板", "A004 - MEB多功能實驗板"]
+                            }
+                        },
+                        {
+                            "Name": "忍者哈特力",
+                            "SchoolName": "輔仁大學",
+                            "Department": "學生會辦公室",
+                            "HourlyFeeMin": "2000",
+                            "HourlyFeeMax": "4000",
+                            "StudentNum": 20,
+                            "TotalHour": "20",
+                            "Mobile": "0922222222",
+                            "Email": "test2@gamil.com",
+                            "locations": "1,2",
+                            "mornings": {
+                                "data": "1, 0, 0, 0, 0, 1,0"
+                            },
+                            "afternoons": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "nights": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "profileimage": "",
+                            "SelfIntroduction": "12345555555",
+                            "itemscore": {
+                                "shape": 1000, "mechanism": 2000, "electronic": 500, "program": 3333, "communicate": 300, "ai": 50
+                            },
+                            "proctorItem": {
+                                "ItemName": ["A004 - MEB多功能實驗板", "A004 - MEB多功能實驗板"]
+                            }
+                        },
+                        {
+                            "Name": "忍者哈特力",
+                            "SchoolName": "輔仁大學",
+                            "Department": "學生會辦公室",
+                            "HourlyFeeMin": "2000",
+                            "HourlyFeeMax": "4000",
+                            "StudentNum": 20,
+                            "TotalHour": "20",
+                            "Mobile": "0922222222",
+                            "Email": "test2@gamil.com",
+                            "locations": "1,2",
+                            "mornings": {
+                                "data": "1, 0, 0, 0, 0, 1,0"
+                            },
+                            "afternoons": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "nights": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "profileimage": "",
+                            "SelfIntroduction": "12345555555",
+                            "itemscore": {
+                                "shape": 1000, "mechanism": 2000, "electronic": 500, "program": 3333, "communicate": 300, "ai": 50
+                            },
+                            "proctorItem": {
+                                "ItemName": ["A004 - MEB多功能實驗板", "A004 - MEB多功能實驗板"]
+                            }
+                        },
+                        {
+                            "Name": "忍者哈特力",
+                            "SchoolName": "輔仁大學",
+                            "Department": "學生會辦公室",
+                            "HourlyFeeMin": "2000",
+                            "HourlyFeeMax": "4000",
+                            "StudentNum": 20,
+                            "TotalHour": "20",
+                            "Mobile": "0922222222",
+                            "Email": "test2@gamil.com",
+                            "locations": "1,2",
+                            "mornings": {
+                                "data": "1, 0, 0, 0, 0, 1,0"
+                            },
+                            "afternoons": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "nights": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "profileimage": "",
+                            "SelfIntroduction": "12345555555",
+                            "itemscore": {
+                                "shape": 1000, "mechanism": 2000, "electronic": 500, "program": 3333, "communicate": 300, "ai": 50
+                            },
+                            "proctorItem": {
+                                "ItemName": ["A004 - MEB多功能實驗板", "A004 - MEB多功能實驗板"]
+                            }
+                        },
+                        {
+                            "Name": "忍者哈特力",
+                            "SchoolName": "輔仁大學",
+                            "Department": "學生會辦公室",
+                            "HourlyFeeMin": "2000",
+                            "HourlyFeeMax": "4000",
+                            "StudentNum": 20,
+                            "TotalHour": "20",
+                            "Mobile": "0922222222",
+                            "Email": "test2@gamil.com",
+                            "locations": "1,2",
+                            "mornings": {
+                                "data": "1, 0, 0, 0, 0, 1,0"
+                            },
+                            "afternoons": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "nights": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "profileimage": "",
+                            "SelfIntroduction": "12345555555",
+                            "itemscore": {
+                                "shape": 1000, "mechanism": 2000, "electronic": 500, "program": 3333, "communicate": 300, "ai": 50
+                            },
+                            "proctorItem": {
+                                "ItemName": ["A004 - MEB多功能實驗板", "A004 - MEB多功能實驗板"]
+                            }
+                        },
+                        {
+                            "Name": "忍者哈特力",
+                            "SchoolName": "輔仁大學",
+                            "Department": "學生會辦公室",
+                            "HourlyFeeMin": "2000",
+                            "HourlyFeeMax": "4000",
+                            "StudentNum": 20,
+                            "TotalHour": "20",
+                            "Mobile": "0922222222",
+                            "Email": "test2@gamil.com",
+                            "locations": "1,2",
+                            "mornings": {
+                                "data": "1, 0, 0, 0, 0, 1,0"
+                            },
+                            "afternoons": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "nights": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "profileimage": "",
+                            "SelfIntroduction": "12345555555",
+                            "itemscore": {
+                                "shape": 1000, "mechanism": 2000, "electronic": 500, "program": 3333, "communicate": 300, "ai": 50
+                            },
+                            "proctorItem": {
+                                "ItemName": ["A004 - MEB多功能實驗板", "A004 - MEB多功能實驗板"]
+                            }
+                        },
+                        {
+                            "Name": "忍者哈特力",
+                            "SchoolName": "輔仁大學",
+                            "Department": "學生會辦公室",
+                            "HourlyFeeMin": "2000",
+                            "HourlyFeeMax": "4000",
+                            "StudentNum": 20,
+                            "TotalHour": "20",
+                            "Mobile": "0922222222",
+                            "Email": "test2@gamil.com",
+                            "locations": "1,2",
+                            "mornings": {
+                                "data": "1, 0, 0, 0, 0, 1,0"
+                            },
+                            "afternoons": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "nights": {
+                                "data": "1, 1, 1, 1, 1, 0,0"
+                            },
+                            "profileimage": "",
+                            "SelfIntroduction": "12345555555",
+                            "itemscore": {
+                                "shape": 1000, "mechanism": 2000, "electronic": 500, "program": 3333, "communicate": 300, "ai": 50
+                            },
+                            "proctorItem": {
+                                "ItemName": ["A004 - MEB多功能實驗板", "A004 - MEB多功能實驗板"]
+                            }
+                        }
+                    ],
+
+
+
+            },
+
+
+            isActive: true,
+
+            teacherName: '',//搜尋老師的姓名
+            sortColumns: sortColumns,
+            sortBy: 'sort_teacherName',//排序，預設用老師姓名
+
+
+            pageSize: 5,//每頁幾筆
+            page: 1,//目前在第幾頁
+            totalCount: 0,//總共幾筆
+            coursePlannerDataList: [],
+
+            top: 900,//
+            isSpinnerShow: true,
+
+            nowCount: 1//看滑了幾次
+        },
+        mounted: function () {
+            this.query();
+
+            window.addEventListener('scroll', this.scroll_T);
+        },
+        watch: {
+            filterMakerItem: function () {
+                vueMain.pickMakerItem = [];
+                //抓教學項目的名字
+
+                this.filterMakerItem.forEach(function (item, index, array) {
+
+                    var filterMakerItemName = $('#' + item).text();
+                    if (vueMain.pickMakerItem.length > 0) {
+                        var current = vueMain.pickMakerItem.indexOf(filterMakerItemName)
+
+                        if (current == -1) {
+                            vueMain.pickMakerItem.push(filterMakerItemName);
+                        }
+                    } else {
+                        vueMain.pickMakerItem.push(filterMakerItemName);
+                    }
+
+                })
+
+            },
+            filterLocation: function () {
+                vueMain.pickLocaltion = [];
+                //抓地點的名字
+                this.filterLocation.forEach(function (item, index, array) {
+
+
+                    var filterLocationName = $('#' + item).text();
+                    if (vueMain.pickLocaltion.length > 0) {
+                        var current = vueMain.pickLocaltion.indexOf(filterLocationName)
+
+                        if (current == -1) {
+                            vueMain.pickLocaltion.push(filterLocationName);
+                        }
+                    } else {
+                        vueMain.pickLocaltion.push(filterLocationName);
+                    }
+
+                })
+
+
+            },
+            filterWeekday: function () {
+                vueMain.pickWeekday = [];
+                //抓星期
+                this.filterWeekday.forEach(function (item, index, array) {
+
+
+                    var filterWeekdayName = $('#' + item).text();
+                    if (vueMain.pickWeekday.length > 0) {
+                        var current = vueMain.pickWeekday.indexOf(filterWeekdayName)
+
+                        if (current == -1) {
+                            vueMain.pickWeekday.push(filterWeekdayName);
+                        }
+                    } else {
+                        vueMain.pickWeekday.push(filterWeekdayName);
+                    }
+
+                })
+
+            },
+
+
+        },
+        methods: {
+            setFilterHourFee: function () {
+                this.filterHourFee = this.filterHourFeeUser;
+                searchFilter.clickBlackOut();
+
+                vueMain.pickHourfee = this.filterHourFee;
+            },
+            resetFilterHourFee: function () {
+                this.filterHourFeeUser = '';
+                this.filterHourFee = this.filterHourFeeUser;
+
+                vueMain.pickHourfee = this.filterHourFee;
+            },
+            query: function (pageSize, page) {
+                var action = typeof(pageSize);
+                if (action == 'string') {
+                    //查詢的話把頁數重置
+                    this.pageSize = 5;
+                    this.page = 1;
+                }
+
+
+
+                var hourFee = parseInt(this.filterHourFeeUser);
+
+                if (hourFee < 0) {
+                    alert('鐘點費輸入錯誤!');
+                    return false;
+                }
+
+                var MakerItem = '';
+                if (this.filterMakerItem.length > 0) {
+                    MakerItem = this.filterMakerItem.toString();
+                }
+                var Location = '';
+                if (this.filterLocation.length > 0) {
+                    Location = this.filterLocation.toString();
+                }
+                var Weekday = '';
+                if (this.filterWeekday.length > 0) {
+                    Weekday = this.filterWeekday.toString();
+                }
+
+
+                var data = {
+                    teacherName:    this.teacherName,
+                    filterMakerItem: MakerItem,
+                    filterLocation: Location,
+                    filterWeekday: Weekday,
+                    filterHourFeeUser: hourFee,
+                    sortBy: this.sortBy,
+                    pageSize: this.pageSize,
+                    page: this.page,
+                    pageFrom: 'CoursePlanner'
+                };
+
+                var result = this.makerTeacherData;
+
+                //var i = 1;//看滑了幾次
+                if (result.coursePlanner.length > 0) {
+                    if (action == 'string') {
+                        //重新查詢時要先清空資料
+                        this.coursePlannerDataList = [];
+                        this.isSpinnerShow = true;
+                    }
+                    this.totalCount = result.coursePlanner.length;//筆數
+                    
+                    if (this.nowCount == 1) {
+                        this.coursePlannerDataList = this.coursePlannerDataList.concat(result.coursePlanner).slice(0, 4);
+                       
+                    } else if (this.nowCount == 2) {
+                        this.coursePlannerDataList = this.coursePlannerDataList.concat(result.coursePlanner).slice(0, 8);
+                       
+                    } else if (this.nowCount == 3) {
+                        this.coursePlannerDataList = this.coursePlannerDataList.concat(result.coursePlanner).slice(0, 12);
+                       
+                    } else if (this.nowCount == 4) {
+                        //全數撈完
+                        this.coursePlannerDataList = this.coursePlannerDataList.concat(result.coursePlanner).slice(0, 13);
+                        this.isSpinnerShow = false;
+                    }
+
+                    this.nowCount = this.nowCount+1;
+                }
+                else if (result.length == 0) {
+                    //已全數撈完資料
+                    if (action == 'string') {
+                        this.coursePlannerDataList = [];
+                    }
+                    this.totalCount = result.coursePlanner.length;//筆數
+                    this.isSpinnerShow = false;
+                }
+                else if (result.code == -1) {
+                    alert('發生不明錯誤')
+                }
+
+
+            },
+            sortSelect: function (keyname) {
+                //把所有isActive設為false
+                this.sortColumns.forEach((colum) => {
+                    colum.isActive = false;
+                })
+                //選中的項目的isActive設為true
+                this.sortColumns[keyname].isActive = true;
+                //把選中的項目的key丟給sortBy
+                this.sortBy = this.sortColumns[keyname].sortKey;
+
+                //查詢
+                this.query('query');
+            },
+            reSet: function () {
+                //重置
+                vueMain.pickMakerItem = [];
+                vueMain.pickLocaltion = [];
+                vueMain.pickWeekday = [];
+                vueMain.pickHourfee = 0;
+
+                vueMain.filterMakerItem = [];
+                vueMain.filterLocation = [];
+                vueMain.filterWeekday = [];
+                vueMain.filterHourFee = '';
+                vueMain.filterHourFeeUser = 0;
+
+                this.page = 1;//重置頁數
+                this.query('query');//重置=重新查詢
+            },
+
+            scroll_T: function () {
+
+                var spinnerWindowTop = this.$refs.spinner.getBoundingClientRect().top;
+                if (this.isSpinnerShow && spinnerWindowTop < window.innerHeight * 2) {
+                    this.page = this.page + 1;
+                    this.query(this.pageSize, this.page);
+                }
+
+            },
+
+        }
+    })
+
+
+
+
+    function showDatesMobile() {
+        event.target.classList.add('d-none');
+        event.target.nextElementSibling.classList.remove('d-none');
+    }
+
+    var searchFilter = {
+        currentFilter: '',
+        toggleFilter: function (id) {
+            var newFilter = document.getElementById(id);
+            if (newFilter === this.currentFilter) {
+                this.hideFilter(this.currentFilter);
+                this.currentFilter = '';
+            }
+            else {
+                this.hideFilter(this.currentFilter); //hide previous one
+                this.showFIlter(newFilter);
+                this.currentFilter = newFilter;
+            }
+        },
+        showFIlter: function (el) {
+            el.classList.remove('d-none');
+            document.getElementById('blackOut').classList.remove('d-none');
+        },
+        hideFilter: function (el) {
+            if (el) {
+                el.classList.add('d-none');
+                document.getElementById('blackOut').classList.add('d-none');
+            }
+        },
+        clickBlackOut: function () {
+            this.hideFilter(this.currentFilter);
+            this.currentFilter = '';
+        }
+    }
+    function showFilter(id) {
+        document.getElementById(id).classList.remove('d-none');
+    }
+
+
+
+
+</script>
